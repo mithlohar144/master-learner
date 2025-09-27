@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hello world project</title>
+    <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <div id="root"></div>
+
+    <script type="module" src="/client/App.tsx"></script>
+
+    <!-- n8n Chat widget -->
+    <script type="module">
+      import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+
+      // Initialize chat widget with your n8n webhook and custom logo
+      createChat({
+        webhookUrl: 'https://mithlohar1.app.n8n.cloud/webhook/4b630bb8-cbf2-4c1d-8139-95a116cb5cdf/chat',
+        // Use your uploaded image as header logo (can be data URL or remote URL)
+        icons: {
+          headerLogo: 'https://cdn.builder.io/api/v1/image/assets%2Ffc901443fab84aa8b693d18e3aae9f4e%2Ff94162a5170a4ff19e4d702cbbf229fa?format=webp&width=800'
+        },
+        // Optional: adjust initial messages or appearance
+        initialMessages: ["Hi! I'm SmartCode Mentor — ask me anything about coding or your timetable!"],
+        showWelcomeScreen: true
+      });
+    </script>
+  </body>
+</html>
