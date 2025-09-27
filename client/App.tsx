@@ -7,7 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import Index from "./pages/NewIndex";
+import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
@@ -19,7 +19,6 @@ import Learn from "./pages/Learn";
 import QuizTest from "./pages/QuizTest";
 import NotFound from "./pages/NotFound";
 import Header from "@/components/Header";
-import CornerProjection from "@/components/CornerProjection";
 
 const queryClient = new QueryClient();
 
@@ -37,11 +36,11 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route path="/" element={hasProfile ? <Navigate to="/dashboard" replace /> : <Index onGetStarted={() => window.location.href = '/login'} />} />
+      <Route path="/" element={hasProfile ? <Navigate to="/dashboard" replace /> : <Index />} />
       <Route path="/login" element={<Login />} />
       <Route path="/onboarding" element={<Onboarding />} />
       <Route path="/dashboard" element={hasProfile ? <Dashboard /> : <Navigate to="/login" replace />} />
-      <Route path="/legacy" element={<Index onGetStarted={() => window.location.href = '/onboarding'} />} />
+      <Route path="/legacy" element={<Index />} />
       <Route path="/timetable" element={<TimeTable />} />
       <Route path="/challenge" element={<Challenge />} />
       <Route path="/challenge/:challengeId" element={<ChallengeSolver />} />
@@ -61,7 +60,6 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Header />
-        <CornerProjection />
         <AppRoutes />
       </BrowserRouter>
     </TooltipProvider>

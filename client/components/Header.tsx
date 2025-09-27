@@ -25,9 +25,9 @@ function ThemeToggle() {
       onClick={toggle}
       aria-label="Toggle theme"
       title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-      className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-input bg-background text-sm hover:bg-accent/40"
+      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-sm hover:bg-gray-50 transition-colors shadow-sm"
     >
-      {theme === "dark" ? <Sun className="h-4 w-4 text-yellow-400" /> : <Moon className="h-4 w-4 text-slate-700" />}
+      {theme === "dark" ? <Sun className="h-4 w-4 text-yellow-500" /> : <Moon className="h-4 w-4 text-gray-600" />}
     </button>
   );
 }
@@ -65,11 +65,15 @@ export default function Header() {
   };
   
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-16 items-center justify-between gap-4">
-        <Link to="/" className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-primary" />
-          <span className="font-extrabold tracking-tight">SmartCode Mentor</span>
+    <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur-sm supports-[backdrop-filter]:bg-white/90 shadow-sm">
+      <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
+        <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600">
+            <Sparkles className="h-4 w-4 text-white" />
+          </div>
+          <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+            SmartCode Mentor
+          </span>
         </Link>
         
         {/* Legacy navigation for old index page */}
@@ -92,71 +96,71 @@ export default function Header() {
 
         {/* App navigation */}
         {isAppPage && (
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-2">
             <Link
               to="/dashboard"
               className={cn(
-                "group inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
+                "group inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
                 pathname === "/dashboard" 
-                  ? "text-foreground font-medium bg-primary/10" 
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                  ? "text-purple-600 bg-purple-50 shadow-sm" 
+                  : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
               )}
             >
               <LayoutGrid className={cn(
                 "h-4 w-4 transition-colors",
-                pathname === "/dashboard" ? "text-primary" : "text-muted-foreground group-hover:text-primary"
+                pathname === "/dashboard" ? "text-purple-600" : "text-gray-500 group-hover:text-purple-600"
               )} />
               Dashboard
             </Link>
             <Link
               to="/timetable"
               className={cn(
-                "group inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
+                "group inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
                 pathname === "/timetable" 
-                  ? "text-foreground font-medium bg-primary/10" 
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                  ? "text-purple-600 bg-purple-50 shadow-sm" 
+                  : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
               )}
             >
               <CalendarDays className={cn(
                 "h-4 w-4 transition-colors",
-                pathname === "/timetable" ? "text-primary" : "text-muted-foreground group-hover:text-primary"
+                pathname === "/timetable" ? "text-purple-600" : "text-gray-500 group-hover:text-purple-600"
               )} />
               Timetable
             </Link>
             <Link
               to="/challenge"
               className={cn(
-                "group inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
+                "group inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
                 pathname === "/challenge" 
-                  ? "text-foreground font-medium bg-primary/10" 
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                  ? "text-purple-600 bg-purple-50 shadow-sm" 
+                  : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
               )}
             >
               <Trophy className={cn(
                 "h-4 w-4 transition-colors",
-                pathname === "/challenge" ? "text-primary" : "text-muted-foreground group-hover:text-primary"
+                pathname === "/challenge" ? "text-purple-600" : "text-gray-500 group-hover:text-purple-600"
               )} />
               Challenges
             </Link>
             <Link
               to="/learn"
               className={cn(
-                "group inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
+                "group inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
                 pathname === "/learn" 
-                  ? "text-foreground font-medium bg-primary/10" 
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                  ? "text-purple-600 bg-purple-50 shadow-sm" 
+                  : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
               )}
             >
               <BookOpen className={cn(
                 "h-4 w-4 transition-colors",
-                pathname === "/learn" ? "text-primary" : "text-muted-foreground group-hover:text-primary"
+                pathname === "/learn" ? "text-purple-600" : "text-gray-500 group-hover:text-purple-600"
               )} />
               Learn
             </Link>
           </nav>
         )}
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <ThemeToggle />
           
           {/* Notifications for app users */}
@@ -274,8 +278,8 @@ export default function Header() {
           
           {/* Get Started button for landing page */}
           {isLandingPage && (
-            <Button asChild size="sm">
-              <Link to="/onboarding">Get Started</Link>
+            <Button asChild size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200">
+              <Link to="/onboarding" className="font-semibold">Get Started</Link>
             </Button>
           )}
         </div>

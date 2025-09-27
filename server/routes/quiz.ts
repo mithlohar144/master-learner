@@ -126,8 +126,10 @@ export const QUESTION_BANK: Record<string, Record<string, Record<string, QuizQue
 export const generateQuiz: RequestHandler = (req, res) => {
   try {
     const request: QuizRequest = req.body;
+    console.log('🎯 Quiz generation request received:', JSON.stringify(request, null, 2));
     
     if (!request.subjects || request.subjects.length === 0) {
+      console.log('❌ No subjects provided in request');
       return res.status(400).json({ error: 'At least one subject must be selected' });
     }
 
@@ -187,6 +189,12 @@ export const generateQuiz: RequestHandler = (req, res) => {
       topics: [...new Set(limitedQuestions.map(q => q.topic))],
       difficulties: [...new Set(limitedQuestions.map(q => q.difficulty))]
     };
+    
+    console.log('✅ Quiz generated successfully:', {
+      totalQuestions: response.totalQuestions,
+      subjects: response.subjects,
+      topics: response.topics
+    });
     
     res.json(response);
   } catch (error) {

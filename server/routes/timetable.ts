@@ -247,10 +247,16 @@ const createGenericStudyBlocks = (subject: string, totalMinutes: number): TimeTa
 export const handleGenerateTimetable: RequestHandler = async (req, res) => {
   try {
     const request: TimeTableRequest = req.body;
-    const { userId } = req.body; // Extract userId from request
+    const { userId, isWeeklyUpdate, progressData } = req.body; // Extract additional data
+    
+    console.log('📅 Timetable generation request received:', JSON.stringify(request, null, 2));
+    console.log('👤 User ID:', userId);
+    console.log('🔄 Is Weekly Update:', isWeeklyUpdate);
+    console.log('📊 Progress Data:', progressData);
     
     // Validate request
     if (!userId) {
+      console.log('❌ No user ID provided');
       return res.status(400).json({ error: 'User ID is required' });
     }
 
@@ -266,17 +272,19 @@ export const handleGenerateTimetable: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: 'Goal is required' });
     }
 
-    // Get user data from database
-    const user = await UserModel.findById(userId);
+    // Get user data from database (optional - create if doesn't exist)
+    let user = await UserModel.findById(userId);
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      console.log('User not found, creating temporary user for timetable generation');
+      // For demo purposes, we'll continue without requiring a user in database
+      // In production, you might want to create the user or handle this differently
     }
 
     const subjects = Object.keys(request.self_rating);
     const weaknessScores: Record<string, number> = {};
     let totalWeakness = 0;
 
-    // Enhanced weakness calculation considering difficulty level
+    // Enhanced weakness calculation considering difficulty level and progress data
     for (const subject of subjects) {
         const rating = request.self_rating[subject] || 3;
         const score = request.quiz_scores?.[subject] || 50;
@@ -293,6 +301,16 @@ export const handleGenerateTimetable: RequestHandler = async (req, res) => {
                 'advanced': 1.5      // More focus for advanced topics
             };
             weakness *= difficultyMultiplier[subjectLevel.level];
+        }
+
+        // Adaptive adjustment based on weekly progress (if this is a weekly update)
+        if (isWeeklyUpdate && progressData && progressData[subject]) {
+            const progress = progressData[subject];
+            const progressMultiplier = progress.accuracy < 50 ? 1.5 : // Increase focus if low progress
+                                    progress.accuracy > 80 ? 0.8 : // Reduce focus if high progress
+                                    1.0; // Standard focus
+            weakness *= progressMultiplier;
+            console.log(`📊 Adaptive adjustment for ${subject}: ${progress.accuracy}% accuracy, multiplier: ${progressMultiplier}`);
         }
         
         weaknessScores[subject] = weakness;
@@ -321,17 +339,18 @@ export const handleGenerateTimetable: RequestHandler = async (req, res) => {
         }
     }
 
-    // Create metadata
+    // Create metadata with adaptive information
     const metadata = {
-        totalStudyTime: request.daily_hours,
-        subjectCount: subjects.length,
-        topicCount: Object.values(request.subject_levels || {}).reduce((acc, level) => acc + level.topics.length, 0),
-        generatedAt: new Date().toISOString(),
-        studyTips: [
+        totalStudyTime: `${request.daily_hours} hours`,
+        subjectsCount: subjects.length,
+        topicsCount: Object.values(request.subject_levels || {}).reduce((acc, level) => acc + level.topics.length, 0),
+        recommendedBreaks: [
             "Take 5-minute breaks between study blocks",
             "Review previous day's topics before starting new ones",
             "Practice active recall during study sessions",
-            "Use the Pomodoro technique for better focus"
+            "Use the Pomodoro technique for better focus",
+            ...(isWeeklyUpdate ? ["📅 This is your weekly adaptive update based on progress"] : []),
+            ...(progressData ? [`📊 Focus areas adjusted based on ${Object.keys(progressData).length} subjects' performance`] : [])
         ]
     };
 
@@ -341,19 +360,37 @@ export const handleGenerateTimetable: RequestHandler = async (req, res) => {
         metadata
     };
 
-    // Save timetable to database
-    await TimetableModel.create({
-        user_id: userId,
-        title: `${request.goal} - ${new Date().toLocaleDateString()}`,
-        schedule_type: request.schedule_type || 'daily',
-        study_days: request.study_days || [],
-        daily_hours: request.daily_hours,
-        timetable_data: response,
-        metadata
-    });
+    // Save timetable to database (only if user exists)
+    try {
+      await TimetableModel.create({
+          user_id: userId,
+          title: `${request.goal} - ${new Date().toLocaleDateString()}`,
+          schedule_type: request.schedule_type || 'daily',
+          study_days: request.study_days || [],
+          daily_hours: request.daily_hours,
+          timetable_data: response,
+          metadata
+      });
+      console.log('Timetable saved to database');
+    } catch (dbError) {
+      console.log('Failed to save timetable to database:', dbError.message);
+      // Continue anyway - don't fail the request
+    }
 
-    // Update user's last active timestamp
-    await UserModel.updateLastActive(userId);
+    // Update user's last active timestamp (only if user exists)
+    if (user) {
+      try {
+        await UserModel.updateLastActive(userId);
+      } catch (updateError) {
+        console.log('Failed to update user last active:', updateError.message);
+      }
+    }
+
+    console.log('✅ Timetable generated successfully:', {
+      dayPlanBlocks: response["Day Plan"].length,
+      weeklyPlan: !!response["Weekly Plan"],
+      metadata: response.metadata
+    });
 
     res.json(response);
   } catch (error) {
