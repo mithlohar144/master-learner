@@ -23,6 +23,8 @@ interface QuizResultsProps {
 }
 
 export const Quiz: React.FC<QuizProps> = ({ questions, timeLimit, onComplete, onCancel }) => {
+  console.log('🎯 Quiz component mounted with:', { questionsLength: questions?.length, timeLimit });
+  
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [timeLeft, setTimeLeft] = useState(timeLimit * 60); // Convert to seconds
@@ -88,7 +90,18 @@ export const Quiz: React.FC<QuizProps> = ({ questions, timeLimit, onComplete, on
   const answeredQuestions = Object.keys(answers).length;
   const currentQ = questions[currentQuestion];
 
-  if (!currentQ) return null;
+  if (!currentQ) {
+    console.error('❌ No current question found:', { currentQuestion, questionsLength: questions.length });
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-red-600 mb-2">Quiz Error</h2>
+          <p className="text-gray-600 mb-4">Unable to load quiz question. Please try again.</p>
+          <Button onClick={onCancel}>Go Back</Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-6">

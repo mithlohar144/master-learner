@@ -485,7 +485,9 @@ const TimeTable = () => {
       setQuizQuestions(quizData);
       setShowQuiz(true);
     } catch (error) {
-      console.error('Error generating quiz:', error);
+      console.error('❌ Error generating quiz:', error);
+      alert(`Quiz generation failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
+      setShowQuiz(false);
     }
     setQuizLoading(false);
   };
@@ -629,8 +631,39 @@ const TimeTable = () => {
     generateQuiz();
   };
 
+  // Show quiz loading state
+  if (showQuiz && quizLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Preparing Your Quiz</h2>
+          <p className="text-gray-600">Generating personalized questions based on your profile...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Show quiz if active
   if (showQuiz && quizQuestions) {
+    console.log('🎯 Rendering Quiz component with:', {
+      questionsCount: quizQuestions.questions?.length,
+      timeLimit: quizQuestions.timeLimit,
+      hasQuestions: !!quizQuestions.questions
+    });
+    
+    if (!quizQuestions.questions || quizQuestions.questions.length === 0) {
+      return (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold text-red-600 mb-2">Quiz Error</h2>
+            <p className="text-gray-600 mb-4">No quiz questions were generated. Please try again.</p>
+            <Button onClick={() => setShowQuiz(false)}>Go Back</Button>
+          </div>
+        </div>
+      );
+    }
+    
     return (
       <Quiz
         questions={quizQuestions.questions}
@@ -649,6 +682,22 @@ const TimeTable = () => {
         onRetake={handleRetakeQuiz}
         onContinue={generateTimetableFromQuiz}
       />
+    );
+  }
+
+  // Fallback case for showQuiz without questions or loading
+  if (showQuiz && !quizQuestions && !quizLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-red-600 mb-2">Quiz Loading Error</h2>
+          <p className="text-gray-600 mb-4">Something went wrong while preparing your quiz.</p>
+          <div className="space-x-4">
+            <Button onClick={() => setShowQuiz(false)}>Go Back</Button>
+            <Button onClick={() => generateQuiz()} variant="outline">Try Again</Button>
+          </div>
+        </div>
+      </div>
     );
   }
 
